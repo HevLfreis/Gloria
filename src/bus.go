@@ -55,6 +55,8 @@ func BusHandler(w http.ResponseWriter, r *http.Request) {
 
 	wg.Wait()
 
+	log.Info("crawl bus info ok")
+
 	fmt.Fprintf(w, BUS_TEMPLATE,
 		home.StopDistance,
 		home.Minute,

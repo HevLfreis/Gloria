@@ -1,9 +1,11 @@
 package main
 
 const (
-	MONGO_URL    = "mongodb://127.0.0.1"
-	MONGO_DBNAME = "gloria"
-	BUS_TEMPLATE = `<!DOCTYPE html><html lang="en">
+	STATUS_SUCCESS     = 0
+	STATUS_ERR         = -1
+	STATUS_UNSUPPORTED = -5
+	MONGO_DBNAME       = "gloria"
+	BUS_TEMPLATE       = `<!DOCTYPE html><html lang="en">
 						<head>
 						<meta charset="UTF-8">
 						<meta http-equiv="X-UA-Compatible" content="IE=edge">

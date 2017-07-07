@@ -8,8 +8,8 @@ type MongoStore struct {
 	session *mgo.Session
 }
 
-func NewMongoStore() *MongoStore {
-	session, err := mgo.Dial(MONGO_URL)
+func NewMongoStore(url string) *MongoStore {
+	session, err := mgo.Dial(url)
 	if err != nil {
 		panic(err)
 	}
