@@ -14,7 +14,7 @@ import (
 var (
 	MONGO *MongoStore
 	log log15.Logger
-	API []Api
+	SUPPORTED_APIS []Api
 )
 
 func main() {
@@ -33,8 +33,7 @@ func main() {
 	router.HandleFunc("/", IndexHandler).Methods("GET").Name("index")
 	router.HandleFunc("/bus", BusHandler).Methods("GET").Name("bus")
 	router.HandleFunc("/dott", DotHandler).Methods("GET", "POST", "DELETE").Name("dot")
-	//router.HandleFunc("/bg", BgHandler).Methods("GET")
-	router.HandleFunc("/test", TestHandler).Methods("POST")
+	router.HandleFunc("/test", TestHandler).Methods("GET", "POST").Name("test")
 	router.NotFoundHandler = http.HandlerFunc(UnsupportedHandler)
 
 	router.Walk(func(route *mux.Route, router *mux.Router, ancestors []*mux.Route) error {
@@ -45,7 +44,7 @@ func main() {
 		fmt.Println(strings.Join(m, ","), t)
 
 		// init available apis
-		API = append(API, Api{n, t, m})
+		SUPPORTED_APIS = append(SUPPORTED_APIS, Api{n, t, m})
 		return nil
 	})
 
@@ -68,8 +67,8 @@ func main() {
 }
 
 func IndexHandler(w http.ResponseWriter, r *http.Request) {
-	results := make([]interface{}, len(API))
-	for i, api := range API {
+	results := make([]interface{}, len(SUPPORTED_APIS))
+	for i, api := range SUPPORTED_APIS {
 		results[i] = api
 	}
 
@@ -77,8 +76,8 @@ func IndexHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func UnsupportedHandler(w http.ResponseWriter, r *http.Request) {
-	results := make([]interface{}, len(API))
-	for i, api := range API {
+	results := make([]interface{}, len(SUPPORTED_APIS))
+	for i, api := range SUPPORTED_APIS {
 		results[i] = api
 	}
 
@@ -86,20 +85,19 @@ func UnsupportedHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func TestHandler(w http.ResponseWriter, r *http.Request) {
-	_, err := ParseForm(r, map[string]interface{}{"float1": 0.0, "string1": "string", "bool1": nil})
+	data, err := ParseArgs(r, map[string]interface{}{"float": 0.0, "string": "string", "bool": false})
 
 	if err != nil {
 		log.Warn("parse arg failed", "err", err)
+		SendJsonResponse(w, STATUS_ERR, "receive params failed", nil)
 		return
 	}
 
-	fmt.Fprintf(w, "hello %s", "world")
-}
+	result := map[string]interface{}{
+		"float": data["float"].(float64),
+		"string": data["string"].(string),
+		"bool": data["bool"].(bool),
+	}
 
-//func BgHandler(w http.ResponseWriter, r *http.Request) {
-//	f, err := exec.Command("/root/anaconda2/bin/python", "/home/hevlfreis/projects/iBot/src/main.py").CombinedOutput()
-//	if err != nil {
-//
-//	}
-//	fmt.Fprintf(w, string(f))
-//}
+	SendJsonResponse(w, STATUS_SUCCESS, "receive params", []interface{}{result})
+}

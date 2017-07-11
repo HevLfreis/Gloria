@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
-kill -9 $(ps -el | grep sm_server | awk '{print $4" "$5}')
+kill -9 $(ps -el | grep api_server | awk '{print $4" "$5}')
 cd /home/hevlfreis/projects/Gloria/src
 pwd
-go build -o sm_server
-nohup ./sm_server &
+go build -o api_server
+cd ..
+nohup ./src/api_server -port=8080 &

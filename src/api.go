@@ -46,12 +46,12 @@ func FormatData(data map[string]interface{}) *strings.Reader {
 // return status code, body, err
 func (api *Api) Get() (int, string, error) {
 
-	if !api.Allow("GET") {
+	if !api.Allow(http.MethodGet) {
 		return -1, "", NewError("not support get")
 	}
 
 	client := &http.Client{}
-	req, _ := http.NewRequest("GET", api.Url, nil)
+	req, _ := http.NewRequest(http.MethodGet, api.Url, nil)
 	resp, err := client.Do(req)
 	if err != nil {
 		return -1, "", err
@@ -70,12 +70,12 @@ func (api *Api) Get() (int, string, error) {
 // return status code, body, err
 func (api *Api) Post(data map[string]interface{}) (int, string, error) {
 
-	if !api.Allow("POST") {
+	if !api.Allow(http.MethodPost) {
 		return -1, "", NewError("not support post")
 	}
 
 	client := &http.Client{}
-	req, _ := http.NewRequest("POST", api.Url, FormatData(data))
+	req, _ := http.NewRequest(http.MethodPost, api.Url, FormatData(data))
 	resp, err := client.Do(req)
 	if err != nil {
 		return -1, "", err
@@ -94,12 +94,12 @@ func (api *Api) Post(data map[string]interface{}) (int, string, error) {
 // return status code, body, err
 func (api *Api) Delete() (int, string, error) {
 
-	if !api.Allow("DELETE") {
+	if !api.Allow(http.MethodDelete) {
 		return -1, "", NewError("not support get")
 	}
 
 	client := &http.Client{}
-	req, _ := http.NewRequest("DELETE", api.Url, nil)
+	req, _ := http.NewRequest(http.MethodDelete, api.Url, nil)
 	resp, err := client.Do(req)
 	if err != nil {
 		return -1, "", err
@@ -118,12 +118,12 @@ func (api *Api) Delete() (int, string, error) {
 // return status code, body, err
 func (api *Api) Put(data map[string]interface{}) (int, string, error) {
 
-	if !api.Allow("PUT") {
+	if !api.Allow(http.MethodPut) {
 		return -1, "", NewError("not support get")
 	}
 
 	client := &http.Client{}
-	req, _ := http.NewRequest("PUT", api.Url, FormatData(data))
+	req, _ := http.NewRequest(http.MethodPut, api.Url, FormatData(data))
 	resp, err := client.Do(req)
 	if err != nil {
 		return -1, "", err

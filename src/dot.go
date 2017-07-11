@@ -27,11 +27,11 @@ func NewDot(name string, cords [2]float32, timestamp time.Time) *Dot {
 func DotHandler(w http.ResponseWriter, r *http.Request) {
 
 	switch r.Method {
-	case "GET":
+	case http.MethodGet:
 		DotGetHandler(w, r)
-	case "POST":
+	case http.MethodPost:
 		DotPostHandler(w, r)
-	case "DELETE":
+	case http.MethodDelete:
 		DotDeleteHandler(w, r)
 	default:
 		UnsupportedHandler(w, r)
@@ -61,7 +61,7 @@ func DotPostHandler(w http.ResponseWriter, r *http.Request) {
 	defer sess.Close()
 	c := sess.DB(MONGO_DBNAME).C("dot")
 
-	data, err := ParseForm(r, map[string]interface{}{"lat": 0.0, "lng": 0.0, "name": "Unknown"})
+	data, err := ParseArgs(r, map[string]interface{}{"lat": 0.0, "lng": 0.0, "name": "Unknown"})
 
 	if err != nil {
 		SendJsonResponse(w, STATUS_ERR, "post dots failed", nil)

@@ -31,65 +31,77 @@ func SendJsonResponse(w http.ResponseWriter, status int, msg string, results []i
 	json.NewEncoder(w).Encode(Response{status, msg, results})
 }
 
-func ParseForm(r *http.Request, args map[string]interface{}) (map[string]interface{}, error)  {
+func ParseArgs(r *http.Request, args map[string]interface{}) (map[string]interface{}, error) {
+
+	var parse func(r *http.Request, k string) string
+
+	switch r.Method {
+	case http.MethodGet:
+		parse = func(r *http.Request, k string) string {
+			return r.URL.Query().Get(k)
+		}
+	default:
+		r.ParseForm()
+		parse = func(r *http.Request, k string) string {
+			return r.PostFormValue(k)
+		}
+	}
 
 	data := make(map[string]interface{})
-
-	r.ParseForm()
 
 	for k, t := range args {
 
 		switch t.(type) {
 		case bool:
-			if r.PostFormValue(k) == "" {
+			if parse(r, k) == "" {
 				data[k] = t
 				break
 			}
 
-			if d, err := strconv.ParseBool(r.PostFormValue(k)); err != nil {
+			if d, err := strconv.ParseBool(parse(r, k)); err != nil {
 				return nil, err
 			} else {
 				data[k] = d
 			}
 
 		case int:
-			if r.PostFormValue(k) == "" {
+			if parse(r, k) == "" {
 				data[k] = t
 				break
 			}
 
-			if d, err := strconv.Atoi(r.PostFormValue(k)); err != nil {
+			if d, err := strconv.Atoi(parse(r, k)); err != nil {
 				return nil, err
 			} else {
 				data[k] = d
 			}
 
 		case float64:
-			if r.PostFormValue(k) == "" {
+			if parse(r, k) == "" {
 				data[k] = t
 				break
 			}
 
-			if d, err := strconv.ParseFloat(r.PostFormValue(k), 64); err != nil {
+			if d, err := strconv.ParseFloat(parse(r, k), 64); err != nil {
 				return nil, err
 			} else {
 				data[k] = d
 			}
 
 		case string:
-			if r.PostFormValue(k) == "" {
+			if parse(r, k) == "" {
 				data[k] = t
 				break
 			}
 
-			data[k] = r.PostFormValue(k)
+			data[k] = parse(r, k)
 
 		default:
-			if r.PostFormValue(k) == "" {
+			if parse(r, k) == "" {
 				return nil, NewError("arg not provided: %s", k)
 			}
 
-			data[k] = r.PostFormValue(k)
+			data[k] = parse(r, k)
 		}
 	}
 
