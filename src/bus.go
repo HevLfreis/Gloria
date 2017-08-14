@@ -14,6 +14,7 @@ import (
 type BusInfo struct {
 	StopDistance string `json:"stopdis"`
 	Time         string `json:"time"`
+	Title        string
 	Minute       int
 }
 
@@ -32,24 +33,28 @@ func BusHandler(w http.ResponseWriter, r *http.Request) {
 	go func() {
 		defer wg.Done()
 		home = GetBusInfo("0", "31")
+		home.Title = "去金科路"
 		fmt.Println(home)
 	}()
 
 	go func() {
 		defer wg.Done()
-		mall = GetBusInfo("1", "17")
+		mall = GetBusInfo("1", "18")
+		mall.Title = "金科路回家"
 		fmt.Println(mall)
 	}()
 
 	go func() {
 		defer wg.Done()
 		leave = GetBusInfo("1", "24")
+		leave.Title = "去广兰路地铁站"
 		fmt.Println(leave)
 	}()
 
 	go func() {
 		defer wg.Done()
 		station = GetBusInfo("0", "29")
+		station.Title = "广兰路地铁站回家"
 		fmt.Println(station)
 	}()
 
@@ -57,15 +62,11 @@ func BusHandler(w http.ResponseWriter, r *http.Request) {
 
 	log.Info("crawl bus info ok")
 
-	fmt.Fprintf(w, BUS_TEMPLATE,
-		home.StopDistance,
-		home.Minute,
-		mall.StopDistance,
-		mall.Minute,
-		leave.StopDistance,
-		leave.Minute,
-		station.StopDistance,
-		station.Minute)
+	infos := []BusInfo{home, mall, leave, station}
+	context := map[string]interface{}{
+		"infos": infos,
+	}
+	Render(w, busTpl, context)
 }
 
 func GetBusInfo(stoptype string, stopid string) BusInfo {

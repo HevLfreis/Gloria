@@ -1,14 +1,9 @@
 package main
 
 import (
-	"fmt"
 	"net/http"
-	"strings"
 	"flag"
-	"github.com/gorilla/mux"
 	"github.com/inconshreveable/log15"
-	"path/filepath"
-	//"strconv"
 )
 
 var (
@@ -29,37 +24,10 @@ func main() {
 	defer MONGO.Close()
 
 	// config routers
-	router := mux.NewRouter()
-	router.HandleFunc("/", IndexHandler).Methods("GET").Name("index")
-	router.HandleFunc("/bus", BusHandler).Methods("GET").Name("bus")
-	router.HandleFunc("/dott", DotHandler).Methods("GET", "POST", "DELETE").Name("dot")
-	router.HandleFunc("/test", TestHandler).Methods("GET", "POST").Name("test")
-	router.NotFoundHandler = http.HandlerFunc(UnsupportedHandler)
+	router := InitRouter()
 
-	router.Walk(func(route *mux.Route, router *mux.Router, ancestors []*mux.Route) error {
-		t, _ := route.GetPathTemplate()
-		m, _ := route.GetMethods()
-		n := route.GetName()
-
-		fmt.Println(strings.Join(m, ","), t)
-
-		// init available apis
-		SUPPORTED_APIS = append(SUPPORTED_APIS, Api{n, t, m})
-		return nil
-	})
-
-	// set log15
-	logPath := "log"
-	logFile := "gloria.log"
-
-	log = log15.New("module", "api/server")
-	if err := DirExistedOrCreate(logPath); err != nil {
-		log.Warn("log path create failed")
-		return
-	}
-	handler, _ := log15.FileHandler(filepath.Join(logPath, logFile), log15.TerminalFormat())
-	log.SetHandler(handler)
-	log.Info("start logging", "path", filepath.Join(logPath, logFile))
+	// init logger
+	InitLogger()
 
 	// start server
 	log.Info("start api server", "port", *port)
